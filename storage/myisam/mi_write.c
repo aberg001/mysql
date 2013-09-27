@@ -113,6 +113,7 @@ int mi_write(MI_INFO *info, uchar *record)
 	  if (local_lock_tree)
             mysql_rwlock_unlock(&share->key_root_lock[i]);
           DBUG_PRINT("error",("Got error: %d on write",my_errno));
+          fprintf(stderr, "%s:%u %d %d\n", __FUNCTION__, __LINE__, my_errno, errno);
           goto err;
         }
       }
@@ -124,6 +125,7 @@ int mi_write(MI_INFO *info, uchar *record)
           if (local_lock_tree)
             mysql_rwlock_unlock(&share->key_root_lock[i]);
           DBUG_PRINT("error",("Got error: %d on write",my_errno));
+          fprintf(stderr, "%s:%u %d %d\n", __FUNCTION__, __LINE__, my_errno, errno);
           goto err;
         }
       }
@@ -139,8 +141,11 @@ int mi_write(MI_INFO *info, uchar *record)
     info->checksum=(*share->calc_checksum)(info,record);
   if (!(info->opt_flag & OPT_NO_ROWS))
   {
-    if ((*share->write_record)(info,record))
+    if ((*share->write_record)(info,record)) 
+    {
+      fprintf(stderr, "%s:%u %d %d\n", __FUNCTION__, __LINE__, my_errno, errno);
       goto err;
+    }
     info->state->checksum+=info->checksum;
   }
   if (share->base.auto_key)
